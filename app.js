@@ -1,3 +1,67 @@
+function shell(content) {
+  const count = state.cart.reduce((a, c) => a + c.qty, 0);
+  const cartLabel = `Cart${count ? ` (${count})` : ''}`;
+  return `
+  <header class="top">
+    <a href="#/" class="brand"><img src="assets/leopard.jpg" alt="Succession logo"><span>Succession</span></a>
+    <nav class="mainnav">
+      <a href="#/">Home</a>
+      <div class="dropdown">
+        <button type="button" class="dropbtn">Discover</button>
+        <div class="dropmenu">
+          <a href="#/" data-scroll="hoodies">Hoodies</a>
+          <a href="#/" data-scroll="pants">Pants</a>
+        </div>
+      </div>
+      <a href="#/help">Help</a>
+      <a href="#/cart" class="cartlink">${cartLabel}</a>
+    </nav>
+    <div class="mobright">
+      <a href="#/cart" class="cartlink mobilcart">${cartLabel}</a>
+      <button type="button" class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+  <div class="drawerwrap" hidden>
+    <div class="draweroverlay"></div>
+    <aside class="drawer" aria-label="Menu">
+      <div class="drawerhead"><span>Menu</span><button type="button" class="drawerclose" aria-label="Close menu">&times;</button></div>
+      <a href="#/" data-nav>Home</a>
+      <p class="drawergroup">Discover</p>
+      <a href="#/" class="sub" data-nav data-scroll="hoodies">Hoodies</a>
+      <a href="#/" class="sub" data-nav data-scroll="pants">Pants</a>
+      <a href="#/help" data-nav>Help</a>
+      <a href="#/cart" data-nav>${cartLabel}</a>
+    </aside>
+  </div>
+  <main>${content}</main>
+  <footer class="foot">Succession - Alexandria, Egypt - Orders &amp; support on WhatsApp ${esc(state.settings?.storeWhatsApp || '')}</footer>`;
+}
+
+// ---------- nav drawer ----------
+function closeDrawer() {
+  const w = document.querySelector('.drawerwrap'); if (!w || w.hidden) return;
+  w.hidden = true;
+  const b = document.querySelector('.burger'); if (b) b.setAttribute('aria-expanded', 'false');
+}
+function goSection(id) {
+  const doScroll = () => { const el = document.getElementById(id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+  if ((location.hash || '#/') !== '#/') { location.hash = '#/'; setTimeout(doScroll, 150); }
+  else doScroll();
+}
+document.addEventListener('click', (e) => {
+  const burger = e.target.closest('.burger');
+  if (burger) {
+    const w = document.querySelector('.drawerwrap');
+    if (w) { w.hidden = !w.hidden; burger.setAttribute('aria-expanded', String(!w.hidden)); }
+    return;
+  }
+  if (e.target.closest('.drawerclose') || e.target.closest('.draweroverlay')) { closeDrawer(); return; }
+  const sc = e.target.closest('[data-scroll]');
+  if (sc) { e.preventDefault(); closeDrawer(); goSection(sc.dataset.scroll); return; }
+  if (e.target.closest('[data-nav]')) closeDrawer();
+});
+window.addEventListener('hashchange', closeDrawer);
+
 // Succession storefront - production build.
 // Data: Firestore (products, settings, orders). Auth: Firebase Auth (owner only).
 // Notifications: EmailJS to the owner. All money math is re-validated by Firestore rules.
@@ -106,9 +170,9 @@ function renderHome(root) {
     <img class="heroart" src="assets/leopard.jpg" alt="Succession leopard artwork">
   </section>
   <section class="page" id="catalog">
-    <h2>Hoodies</h2>
+    <h2 id="hoodies">Hoodies</h2>
     <div class="grid">${hoodies.map(productCard).join('') || '<p class="muted">No products here yet.</p>'}</div>
-    <h2>Pants</h2>
+    <h2 id="pants">Pants</h2>
     <div class="grid">${pants.map(productCard).join('') || '<p class="muted">No products here yet.</p>'}</div>
   </section>`);
 }
@@ -530,3 +594,4 @@ async function boot() {
   render();
 }
 boot();
+

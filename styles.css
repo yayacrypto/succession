@@ -130,3 +130,32 @@ table.cart td { padding: 10px 6px; border-bottom: 1px solid #1b1b1f; vertical-al
   .product { grid-template-columns: 1fr 1fr; }
   .page { padding: 30px 30px 50px; }
 }
+
+
+/* discover dropdown (desktop) */
+.dropdown { position: relative; }
+.dropbtn { background: none; border: 0; color: #f2efe9; font: inherit; font-weight: 600; font-size: 14.5px; cursor: pointer; padding: 0; }
+.dropmenu { display: none; position: absolute; right: 0; top: calc(100% + 8px); background: #17171c; border: 1px solid #26262e; border-radius: 10px; min-width: 150px; padding: 6px; z-index: 40; }
+.dropdown:hover .dropmenu, .dropdown:focus-within .dropmenu { display: block; }
+.dropmenu a { display: block; padding: 9px 10px; border-radius: 6px; }
+.dropmenu a:hover { background: #20202a; }
+
+/* mobile: burger + drawer */
+.mobright { display: none; align-items: center; gap: 14px; }
+.burger { display: block; background: none; border: 1px solid #2a2a33; border-radius: 8px; width: 40px; height: 36px; padding: 7px 8px; cursor: pointer; }
+.burger span { display: block; height: 2px; background: #f2efe9; margin: 4px 0; border-radius: 2px; }
+.drawerwrap { position: fixed; inset: 0; z-index: 60; }
+.draweroverlay { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+.drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(300px, 82vw); background: #141419; border-left: 1px solid #26262e; padding: 18px 14px; display: flex; flex-direction: column; gap: 2px; }
+.drawerhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
+.drawerclose { background: none; border: 0; color: #f2efe9; font-size: 26px; cursor: pointer; line-height: 1; padding: 0 4px; }
+.drawer a { display: block; padding: 12px 10px; border-radius: 8px; font-size: 17px; color: #f2efe9; text-decoration: none; font-weight: 600; }
+.drawer a:hover { background: #20202a; }
+.drawer a.sub { padding-left: 26px; font-weight: 500; }
+.drawergroup { margin: 12px 10px 2px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .14em; color: #8f8a81; }
+.uploadrow { display: flex; align-items: center; gap: 10px; margin: -4px 0 12px; }
+
+@media (max-width: 759px) {
+  .mainnav { display: none; }
+  .mobright { display: flex; }
+}
