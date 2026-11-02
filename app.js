@@ -10,7 +10,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 const EMAILJS_PUBLIC_KEY = 'BiM22ONZbJbZRGSz5';
-const EMAILJS_SERVICE_ID = 'service_l8yaf9z';
+const EMAILJS_SERVICE_ID = 'service_cwpmpd9';
 const EMAILJS_TEMPLATE_ID = 'template_new_order';
 
 const SIZES = ['S', 'M', 'L', 'XL', '2XL'];
