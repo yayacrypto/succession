@@ -162,3 +162,7 @@ table.cart td { padding: 10px 6px; border-bottom: 1px solid #ececea; vertical-al
   .burger { display: block; }
   .mobright { display: flex; }
 }
+
+.govrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 0; }
+.govrow .radio { flex: 1; }
+.govrow input[type=number] { width: 110px; }
