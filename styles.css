@@ -142,7 +142,7 @@ table.cart td { padding: 10px 6px; border-bottom: 1px solid #1b1b1f; vertical-al
 
 /* mobile: burger + drawer */
 .mobright { display: none; align-items: center; gap: 14px; }
-.burger { display: block; background: none; border: 1px solid #2a2a33; border-radius: 8px; width: 40px; height: 36px; padding: 7px 8px; cursor: pointer; }
+.burger { display: none; background: none; border: 1px solid #2a2a33; border-radius: 8px; width: 40px; height: 36px; padding: 7px 8px; cursor: pointer; }
 .burger span { display: block; height: 2px; background: #f2efe9; margin: 4px 0; border-radius: 2px; }
 .drawerwrap { position: fixed; inset: 0; z-index: 60; }
 .draweroverlay { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
@@ -156,6 +156,7 @@ table.cart td { padding: 10px 6px; border-bottom: 1px solid #1b1b1f; vertical-al
 .uploadrow { display: flex; align-items: center; gap: 10px; margin: -4px 0 12px; }
 
 @media (max-width: 759px) {
-  .mainnav { display: none; }
+  .top .mainnav { display: none; }
+  .burger { display: block; }
   .mobright { display: flex; }
 }
