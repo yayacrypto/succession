@@ -103,7 +103,7 @@ function shell(content) {
     </aside>
   </div>
   <main>${content}</main>
-  <footer class="foot">Succession - Alexandria, Egypt - Orders &amp; support on WhatsApp ${esc(state.settings?.storeWhatsApp || '')}</footer>`;
+  <footer class="foot">Succession - Egypt - Orders &amp; support on WhatsApp ${esc(state.settings?.storeWhatsApp || '')}</footer>`;
 }
 
 // ---------- nav drawer ----------
@@ -150,8 +150,8 @@ function renderHome(root) {
   root.innerHTML = shell(`
   <section class="hero">
     <div class="herotext">
-      <h1>Simple colors, bold prints.</h1>
-      <p>Oversized streetwear from Alexandria. Cash on delivery, e-wallet or bank transfer.</p>
+      <h1>Bold prints.</h1>
+      <p>Oversized streetwear made in Egypt.</p>
       <a class="btn" href="#catalog">Shop the drop</a>
     </div>
     <img class="heroart" src="assets/leopard.jpg" alt="Succession leopard artwork">
