@@ -146,7 +146,7 @@ table.cart td { padding: 10px 6px; border-bottom: 1px solid #1b1b1f; vertical-al
 .burger span { display: block; height: 2px; background: #f2efe9; margin: 4px 0; border-radius: 2px; }
 .drawerwrap { position: fixed; inset: 0; z-index: 60; }
 .draweroverlay { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
-.drawer { position: absolute; top: 0; right: 0; bottom: 0; width: min(300px, 82vw); background: #141419; border-left: 1px solid #26262e; padding: 18px 14px; display: flex; flex-direction: column; gap: 2px; }
+.drawer { position: absolute; top: 0; left: 0; bottom: 0; width: min(300px, 82vw); background: #141419; border-right: 1px solid #26262e; padding: 18px 14px; display: flex; flex-direction: column; gap: 2px; }
 .drawerhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding: 0 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; font-size: 13px; }
 .drawerclose { background: none; border: 0; color: #f2efe9; font-size: 26px; cursor: pointer; line-height: 1; padding: 0 4px; }
 .drawer a { display: block; padding: 12px 10px; border-radius: 8px; font-size: 17px; color: #f2efe9; text-decoration: none; font-weight: 600; }

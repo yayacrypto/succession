@@ -72,6 +72,7 @@ function shell(content) {
   const cartLabel = `Cart${count ? ` (${count})` : ''}`;
   return `
   <header class="top">
+    <button type="button" class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
     <a href="#/" class="brand"><img src="assets/leopard.jpg" alt="Succession logo"><span>Succession</span></a>
     <nav class="mainnav">
       <a href="#/">Home</a>
@@ -87,7 +88,6 @@ function shell(content) {
     </nav>
     <div class="mobright">
       <a href="#/cart" class="cartlink mobilcart">${cartLabel}</a>
-      <button type="button" class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </header>
   <div class="drawerwrap" hidden>
