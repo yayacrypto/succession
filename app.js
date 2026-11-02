@@ -70,6 +70,7 @@ async function render() {
 function shell(content) {
   const count = state.cart.reduce((a, c) => a + c.qty, 0);
   const cartLabel = `Cart${count ? ` (${count})` : ''}`;
+  const cartIconLabel = `<svg class="carticon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>${count ? ` <span class="cartcount">(${count})</span>` : ''}`;
   return `
   <header class="top">
     <button type="button" class="burger" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
@@ -84,10 +85,10 @@ function shell(content) {
         </div>
       </div>
       <a href="#/help">Help</a>
-      <a href="#/cart" class="cartlink">${cartLabel}</a>
+      <a href="#/cart" class="cartlink" aria-label="Cart">${cartIconLabel}</a>
     </nav>
     <div class="mobright">
-      <a href="#/cart" class="cartlink mobilcart">${cartLabel}</a>
+      <a href="#/cart" class="cartlink mobilcart" aria-label="Cart">${cartIconLabel}</a>
     </div>
   </header>
   <div class="drawerwrap" hidden>
