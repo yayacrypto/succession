@@ -350,12 +350,12 @@ function sendOrderEmail(orderDoc, id) {
 function renderConfirm(root, id) {
   const cached = JSON.parse(sessionStorage.getItem('succession-last-order') || 'null');
   const payNote = cached && cached.payment !== 'cod'
-    ? `<p class="notice">You chose ${cached.payment === 'wallet' ? 'e-wallet' : 'bank transfer'}: the owner will send you the payment details on WhatsApp.</p>` : '';
+    ? `<p class="notice">You chose ${cached.payment === 'wallet' ? 'e-wallet' : 'bank transfer'}: Support will send you the payment details on WhatsApp.</p>` : '';
   root.innerHTML = shell(`
   <section class="page confirm">
     <div class="check">&#10003;</div>
     <h1>Order ${esc(cached?.orderNo || '')} placed</h1>
-    <p>Thank you! The owner will contact you on WhatsApp to confirm your order.</p>
+    <p>Thank you! Support will contact you on WhatsApp to confirm your order.</p>
     ${payNote}
     ${cached ? `<div class="totals left">
       ${cached.items.map(i => { const p = state.products.find(x => x.id === i.productId); return `<p>${i.qty} x ${esc(p ? p.name : i.productId)} (${i.size}) <b>${egp(i.price * i.qty)}</b></p>`; }).join('')}
@@ -373,7 +373,7 @@ function renderHelp(root) {
     <h3>Delivery</h3>
     <p>We currently deliver in ${(state.settings?.shippingGovs || []).join(', ') || 'Alexandria'} only. Shipping is ${egp(state.settings?.shippingFee ?? 60)} per order.</p>
     <h3>Payment</h3>
-    <p>Cash on delivery, e-wallet, or bank transfer. For wallet or bank, the owner sends you the payment details on WhatsApp after you order.</p>
+    <p>Cash on delivery, e-wallet, or bank transfer. For wallet or bank, Support sends you the payment details on WhatsApp after you order.</p>
     <h3>Sizing</h3>
     <ul>${SIZE_GUIDE.map(([s, w]) => `<li><b>${s}</b> - ${w}</li>`).join('')}</ul>
     <h3>Contact</h3>
@@ -394,7 +394,7 @@ async function renderOwner(root, parts) {
   if (!state.user) {
     root.innerHTML = shell(`
     <section class="page narrow">
-      <h1>Owner sign in</h1>
+      <h1>Support sign in</h1>
       <form id="login" class="form">
         <label>Email<input name="email" type="email" required autocomplete="username"></label>
         <label>Password<input name="password" type="password" required autocomplete="current-password"></label>
@@ -427,7 +427,7 @@ async function renderOwner(root, parts) {
   else if (tab === 'settings') { body = ownerSettings(); }
   else { body = await ownerOrders(); }
 
-  root.innerHTML = shell(`<section class="page"><h1>Owner dashboard</h1>${tabs}${body}</section>`);
+  root.innerHTML = shell(`<section class="page"><h1>Support dashboard</h1>${tabs}${body}</section>`);
   $('#out').addEventListener('click', () => signOut(auth));
   if (tab === 'products') bindOwnerProducts(root);
   if (tab === 'settings') bindOwnerSettings(root);
@@ -604,4 +604,3 @@ async function boot() {
   render();
 }
 boot();
-
