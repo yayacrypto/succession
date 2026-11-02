@@ -19,6 +19,7 @@ const SIZE_GUIDE = [['L', '70-80 kg'], ['XL', '80-90 kg'], ['2XL', '90-110 kg']]
 const GOVS = ['Alexandria','Aswan','Asyut','Beheira','Beni Suef','Cairo','Dakahlia','Damietta','Faiyum','Gharbia','Giza','Ismailia','Kafr El Sheikh','Luxor','Matrouh','Minya','Monufia','New Valley','North Sinai','Port Said','Qalyubia','Qena','Red Sea','Sharqia','Sohag','South Sinai','Suez'];
 
 const DEFAULT_SETTINGS = {
+  shippingFees: { Alexandria: 60 },
   shippingFee: 60,
   shippingGovs: ['Alexandria'],
   acceptingOrders: false,
@@ -30,6 +31,14 @@ const state = { products: [], settings: null, cart: [], user: null, orders: [], 
 const $ = (sel) => document.querySelector(sel);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const egp = (n) => `EGP ${Number(n).toLocaleString('en-EG')}`;
+function shipFees() {
+  const s = state.settings || {};
+  if (s.shippingFees && Object.keys(s.shippingFees).length) return s.shippingFees;
+  const f = {};
+  (s.shippingGovs || []).forEach(g => { f[g] = s.shippingFee ?? 0; });
+  return f;
+}
+function shipGovs() { return Object.keys(shipFees()); }
 
 function loadCart() { try { state.cart = JSON.parse(localStorage.getItem('succession-live-cart') || '[]'); } catch { state.cart = []; } }
 function saveCart() { localStorage.setItem('succession-live-cart', JSON.stringify(state.cart)); }
@@ -81,7 +90,7 @@ function shell(content) {
         <button type="button" class="dropbtn">Discover</button>
         <div class="dropmenu">
           <a href="#/" data-scroll="hoodies">Hoodies</a>
-          <a href="#/" data-scroll="pants">Pants</a>
+          <a href="#/" data-scroll="pants">Sweatpants</a>
         </div>
       </div>
       <a href="#/help">Help</a>
@@ -98,7 +107,7 @@ function shell(content) {
       <a href="#/" data-nav>Home</a>
       <p class="drawergroup">Discover</p>
       <a href="#/" class="sub" data-nav data-scroll="hoodies">Hoodies</a>
-      <a href="#/" class="sub" data-nav data-scroll="pants">Pants</a>
+      <a href="#/" class="sub" data-nav data-scroll="pants">Sweatpants</a>
       <a href="#/help" data-nav>Help</a>
       <a href="#/cart" data-nav>${cartLabel}</a>
     </aside>
@@ -160,7 +169,7 @@ function renderHome(root) {
   <section class="page" id="catalog">
     <h2 id="hoodies">Hoodies</h2>
     <div class="grid">${hoodies.map(productCard).join('') || '<p class="muted">No products here yet.</p>'}</div>
-    <h2 id="pants">Pants</h2>
+    <h2 id="pants">Sweatpants</h2>
     <div class="grid">${pants.map(productCard).join('') || '<p class="muted">No products here yet.</p>'}</div>
   </section>`);
 }
@@ -184,7 +193,7 @@ function renderProduct(root, id) {
         <ul>${SIZE_GUIDE.map(([s, w]) => `<li><b>${s}</b> - ${w}</li>`).join('')}</ul>
       </details>
       <button class="btn" id="addBtn" disabled>Add to cart</button>
-      <p class="muted small">Delivery: ${(state.settings?.shippingGovs || []).join(', ') || 'closed'} - ${egp(state.settings?.shippingFee ?? 0)} shipping.</p>
+      <p class="muted small">Delivery: ${shipGovs().map(g => `${g} - ${egp(shipFees()[g])}`).join(', ') || 'closed'} shipping.</p>
     </div>
   </section>`);
   let chosen = null;
@@ -209,7 +218,9 @@ function cartLines() {
 function renderCart(root) {
   const lines = cartLines();
   const subtotal = lines.reduce((a, l) => a + l.lineTotal, 0);
-  const ship = state.settings?.shippingFee ?? 0;
+  const cartFees = Object.values(shipFees());
+  const oneFee = cartFees.length > 0 && cartFees.every(v => v === cartFees[0]);
+  const ship = cartFees.length ? (oneFee ? cartFees[0] : Math.min(...cartFees)) : 0;
   root.innerHTML = shell(`
   <section class="page">
     <h1>Cart</h1>
@@ -225,8 +236,8 @@ function renderCart(root) {
       </table>
       <div class="totals">
         <p>Subtotal <b>${egp(subtotal)}</b></p>
-        <p>Shipping (${(state.settings?.shippingGovs || []).join(', ')}) <b>${egp(ship)}</b></p>
-        <p class="grand">Total <b>${egp(subtotal + ship)}</b></p>
+        <p>Shipping (${oneFee ? shipGovs().join(', ') : 'set by governorate at checkout'}) <b>${oneFee ? egp(ship) : 'from ' + egp(ship)}</b></p>
+        <p class="grand">Total <b>${oneFee ? egp(subtotal + ship) : 'from ' + egp(subtotal + ship)}</b></p>
       </div>
       <a class="btn" href="#/checkout">Checkout</a>`
     : '<p class="muted">Your cart is empty.</p>'}
@@ -242,8 +253,8 @@ function renderCheckout(root) {
   if (!lines.length) { nav('#/cart'); return; }
   const open = state.settings && state.settings.acceptingOrders === true;
   const subtotal = lines.reduce((a, l) => a + l.lineTotal, 0);
-  const ship = state.settings?.shippingFee ?? 0;
-  const shipGovs = state.settings?.shippingGovs || [];
+  const fees = shipFees();
+  const preGov = shipGovs().length === 1 ? shipGovs()[0] : '';
   root.innerHTML = shell(`
   <section class="page">
     <h1>Checkout</h1>
@@ -255,7 +266,7 @@ function renderCheckout(root) {
       <label>Governorate
         <select name="gov" required>
           <option value="">Choose governorate</option>
-          ${GOVS.map(g => `<option value="${g}" ${shipGovs.includes(g) ? '' : 'disabled'}>${g}${shipGovs.includes(g) ? '' : ' (not available yet)'}</option>`).join('')}
+          ${GOVS.map(g => `<option value="${g}" ${fees[g] != null ? '' : 'disabled'}${g === preGov ? ' selected' : ''}>${g}${fees[g] != null ? '' : ' (not available yet)'}</option>`).join('')}
         </select>
       </label>
       <label>Area / district<input name="area" required minlength="2" maxlength="100"></label>
@@ -266,14 +277,25 @@ function renderCheckout(root) {
       <label class="radio"><input type="radio" name="payment" value="bank"> Bank transfer (we send you the details on WhatsApp)</label>
       <div class="totals">
         <p>Subtotal <b>${egp(subtotal)}</b></p>
-        <p>Shipping <b>${egp(ship)}</b></p>
-        <p class="grand">Total <b>${egp(subtotal + ship)}</b></p>
+        <p>Shipping <b id="coShip">-</b></p>
+        <p class="grand">Total <b id="coTotal">-</b></p>
       </div>
       <p class="error" id="coErr"></p>
-      <button class="btn" type="submit" ${!open ? 'disabled' : ''}>Place order - ${egp(subtotal + ship)}</button>
+      <button class="btn" type="submit" id="coBtn" ${!open ? 'disabled' : ''}>Place order</button>
     </form>
   </section>`);
   if (!open) return;
+  const govSel = $('#co').elements.gov;
+  const coBtn = $('#coBtn');
+  const refreshTotals = () => {
+    const fee = fees[govSel.value];
+    const has = fee != null;
+    $('#coShip').textContent = has ? egp(fee) : '-';
+    $('#coTotal').textContent = has ? egp(subtotal + fee) : '-';
+    coBtn.textContent = has ? `Place order - ${egp(subtotal + fee)}` : 'Place order';
+  };
+  govSel.addEventListener('change', refreshTotals);
+  refreshTotals();
   $('#co').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
@@ -291,7 +313,8 @@ function renderCheckout(root) {
         items.push({ productId: l.productId, size: l.size, qty: l.qty, price: p.price });
         sub += p.price * l.qty;
       }
-      const shipping = state.settings.shippingFee;
+      const shipping = fees[f.get('gov')];
+      if (shipping == null) throw new Error('Choose a delivery governorate.');
       const orderNo = 'SCS-' + Date.now().toString(36).toUpperCase();
       const orderDoc = {
         orderNo,
@@ -368,11 +391,16 @@ function renderConfirm(root, id) {
 }
 
 function renderHelp(root) {
+  const helpFees = shipFees();
+  const helpGovs = Object.keys(helpFees);
+  const deliveryText = !helpGovs.length ? 'Delivery is temporarily unavailable.'
+    : helpGovs.length === 1 ? `We currently deliver in ${helpGovs[0]} only. Shipping is ${egp(helpFees[helpGovs[0]])} per order.`
+    : `We deliver to: ${helpGovs.map(g => `${g} - ${egp(helpFees[g])} shipping`).join(', ')}.`;
   root.innerHTML = shell(`
   <section class="page">
     <h1>Help</h1>
     <h3>Delivery</h3>
-    <p>We currently deliver in ${(state.settings?.shippingGovs || []).join(', ') || 'Alexandria'} only. Shipping is ${egp(state.settings?.shippingFee ?? 60)} per order.</p>
+    <p>${deliveryText}</p>
     <h3>Payment</h3>
     <p>Cash on delivery, e-wallet, or bank transfer. For wallet or bank, Support sends you the payment details on WhatsApp after you order.</p>
     <h3>Sizing</h3>
@@ -388,6 +416,11 @@ async function ensureSeed() {
   const ref = doc(db, 'settings', 'store');
   const snap = await getDoc(ref);
   if (!snap.exists()) await setDoc(ref, DEFAULT_SETTINGS);
+  else if (!snap.data().shippingFees || !Object.keys(snap.data().shippingFees).length) {
+    const seedFees = {};
+    (snap.data().shippingGovs || ['Alexandria']).forEach(g => { seedFees[g] = snap.data().shippingFee ?? 60; });
+    await setDoc(ref, { shippingFees: seedFees }, { merge: true });
+  }
   state.settings = { ...DEFAULT_SETTINGS, ...(await getDoc(ref)).data() };
 }
 
@@ -563,12 +596,16 @@ function bindOwnerProducts(root) {
 
 function ownerSettings() {
   const s = state.settings;
+  const fees = shipFees();
   return `
   <form id="sform" class="form">
     <label class="radio big"><input type="checkbox" name="acceptingOrders" ${s.acceptingOrders ? 'checked' : ''}> Accepting orders</label>
-    <label>Shipping fee (EGP)<input name="shippingFee" type="number" min="0" max="10000" value="${s.shippingFee}" required></label>
-    <fieldset><legend>Delivery governorates</legend>
-      ${GOVS.map(g => `<label class="radio"><input type="checkbox" name="gov_${g}" ${s.shippingGovs.includes(g) ? 'checked' : ''}> ${g}</label>`).join('')}
+    <fieldset><legend>Delivery prices per governorate (EGP)</legend>
+      <p class="muted small">Check the governorates you deliver to and set each delivery price in EGP.</p>
+      ${GOVS.map(g => `<div class="govrow">
+        <label class="radio"><input type="checkbox" name="gov_${g}" ${fees[g] != null ? 'checked' : ''}> ${g}</label>
+        <input name="fee_${g}" type="number" min="0" max="10000" step="1" placeholder="EGP" value="${fees[g] != null ? fees[g] : ''}" ${fees[g] != null ? '' : 'disabled'}>
+      </div>`).join('')}
     </fieldset>
     <label>Store WhatsApp<input name="storeWhatsApp" value="${esc(s.storeWhatsApp)}" required></label>
     <label>Notification email<input name="notifyEmail" type="email" value="${esc(s.notifyEmail)}" required></label>
@@ -578,20 +615,36 @@ function ownerSettings() {
 }
 
 function bindOwnerSettings(root) {
+  GOVS.forEach(g => {
+    const cb = document.querySelector(`input[name="gov_${g}"]`);
+    const fee = document.querySelector(`input[name="fee_${g}"]`);
+    if (cb && fee) cb.addEventListener('change', () => { fee.disabled = !cb.checked; });
+  });
   $('#sform').addEventListener('submit', async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
-    const govs = GOVS.filter(g => f.get('gov_' + g) === 'on');
+    const fees = {};
+    let feeErr = '';
+    GOVS.forEach(g => {
+      if (f.get('gov_' + g) !== 'on') return;
+      const raw = String(f.get('fee_' + g) ?? '').trim();
+      const v = Number(raw);
+      if (raw === '' || !Number.isFinite(v) || v < 0 || v > 10000) { feeErr = `Set a valid EGP price for ${g}.`; return; }
+      fees[g] = Math.round(v);
+    });
+    if (feeErr) { $('#sErr').textContent = feeErr; return; }
+    const govs = Object.keys(fees);
     if (!govs.length) { $('#sErr').textContent = 'Pick at least one delivery governorate.'; return; }
     try {
       await setDoc(doc(db, 'settings', 'store'), {
         acceptingOrders: f.get('acceptingOrders') === 'on',
-        shippingFee: Number(f.get('shippingFee')),
+        shippingFees: fees,
         shippingGovs: govs,
+        shippingFee: fees[govs[0]],
         storeWhatsApp: f.get('storeWhatsApp').trim(),
         notifyEmail: f.get('notifyEmail').trim()
       });
-      state.settings = { ...state.settings, acceptingOrders: f.get('acceptingOrders') === 'on', shippingFee: Number(f.get('shippingFee')), shippingGovs: govs };
+      state.settings = { ...state.settings, acceptingOrders: f.get('acceptingOrders') === 'on', shippingFees: fees, shippingGovs: govs, shippingFee: fees[govs[0]] };
       $('#sOk').textContent = 'Saved.'; $('#sErr').textContent = '';
     } catch (err) { $('#sErr').textContent = err.message; }
   });
