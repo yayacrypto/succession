@@ -8,6 +8,7 @@ import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from
 const app = initializeApp(window.FIREBASE_CONFIG);
 const db = getFirestore(app);
 const auth = getAuth(app);
+const UPLOAD_ENDPOINT = 'https://script.google.com/macros/s/AKfycbykItUh6wEtA99gXcVEeVpL90zWu4czTwSrzt3mgxZMGFjHZtfN5ZCcuoZK4BQ8bQKS/exec';
 
 const EMAILJS_PUBLIC_KEY = 'BiM22ONZbJbZRGSz5';
 const EMAILJS_SERVICE_ID = 'service_cwpmpd9';
@@ -488,6 +489,11 @@ async function ownerProducts() {
       <select name="category"><option value="hoodies">Hoodies</option><option value="pants">Pants</option></select>
     </label>
     <label>Image path or URL<input name="image" required placeholder="assets/hood-dark.jpg"></label>
+    <div class="uploadRow">
+      <button class="link" type="button" id="upBtn">Upload photo from this device</button>
+      <input type="file" id="upFile" accept="image/jpeg,image/png,image/webp" hidden>
+      <span class="muted" id="upStatus"></span>
+    </div>
     <label>Description<input name="desc" maxlength="200"></label>
     <fieldset><legend>Sizes available</legend>
       ${SIZES.map(s => `<label class="radio"><input type="checkbox" name="size_${s}"> ${s}</label>`).join('')}
@@ -501,6 +507,24 @@ async function ownerProducts() {
 
 function bindOwnerProducts(root) {
   const form = $('#pform');
+  const upBtn = $('#upBtn'), upFile = $('#upFile'), upStatus = $('#upStatus');
+  upBtn.addEventListener('click', () => upFile.click());
+  upFile.addEventListener('change', async () => {
+    const file = upFile.files[0]; if (!file) return;
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { upStatus.textContent = 'Only JPG, PNG or WebP photos'; return; }
+    if (file.size > 10 * 1024 * 1024) { upStatus.textContent = 'Photo too large (max 10 MB)'; return; }
+    upBtn.disabled = true; upStatus.textContent = 'Uploading photo...';
+    try {
+      const dataUrl = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+      const token = await auth.currentUser.getIdToken();
+      const resp = await fetch(UPLOAD_ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ token, type: file.type, data: String(dataUrl).split(',')[1] }) });
+      const j = await resp.json();
+      if (!j.ok) throw new Error(j.error === 'forbidden' ? 'Not authorized - sign out and in again' : (j.error || 'Upload failed'));
+      form.image.value = j.url;
+      upStatus.textContent = 'Photo uploaded. Save the product to publish it.';
+    } catch (err) { upStatus.textContent = err.message; }
+    finally { upBtn.disabled = false; upFile.value = ''; }
+  });
   document.querySelectorAll('[data-edit]').forEach(b => b.addEventListener('click', async () => {
     const snap = await getDoc(doc(db, 'products', b.dataset.edit));
     const p = snap.data();
