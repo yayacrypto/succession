@@ -113,7 +113,7 @@ function shell(content) {
     </aside>
   </div>
   <main>${content}</main>
-  <footer class="foot">Succession - Egypt - Orders &amp; support on WhatsApp ${esc(state.settings?.storeWhatsApp || '')}</footer>`;
+  <footer class="foot">Succession - Egypt - support on WhatsApp ${esc(state.settings?.storeWhatsApp || '')}</footer>`;
 }
 
 // ---------- nav drawer ----------
