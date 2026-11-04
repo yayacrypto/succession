@@ -166,3 +166,19 @@ table.cart td { padding: 10px 6px; border-bottom: 1px solid #ececea; vertical-al
 .govrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 3px 0; }
 .govrow .radio { flex: 1; }
 .govrow input[type=number] { width: 110px; }
+
+
+/* Full-width tiger banner: keep the complete artwork visible without stretching. */
+.hero { display: flex; flex-direction: column; gap: 0; width: 100%; max-width: none; margin: 0; padding: 0; text-align: center; }
+.heroart { order: -1; display: block; width: 100%; height: clamp(300px, 52vh, 620px); margin: 0; border-radius: 0; object-fit: contain; background: #000; }
+.herotext { width: 100%; padding: 30px 20px 22px; }
+.herotext h1 { font-size: clamp(30px, 4vw, 44px); }
+@media (max-width: 759px) { .heroart { height: 45vh; min-height: 300px; max-height: 460px; } .herotext { padding: 24px 18px 16px; } }
+/* Center the brand independently of navigation widths. */
+.top { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); min-height: 64px; }
+.top .brand { grid-column: 2; grid-row: 1; justify-self: center; }
+.top .mainnav { grid-column: 3; grid-row: 1; justify-self: end; }
+.top .burger { grid-column: 1; grid-row: 1; justify-self: start; }
+.top .mobright { grid-column: 3; grid-row: 1; justify-self: end; }
+@media (min-width: 760px) and (max-width: 1000px) { .top .mainnav { gap: 12px; } .top .brand span { font-size: 15px; } }
+@media (max-width: 420px) { .top .brand { gap: 7px; } .top .brand span { font-size: 15px; letter-spacing: .1em; } .top .brand img { width: 28px; height: 28px; } }
