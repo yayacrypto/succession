@@ -182,3 +182,6 @@ table.cart td { padding: 10px 6px; border-bottom: 1px solid #ececea; vertical-al
 .top .mobright { grid-column: 3; grid-row: 1; justify-self: end; }
 @media (min-width: 760px) and (max-width: 1000px) { .top .mainnav { gap: 12px; } .top .brand span { font-size: 15px; } }
 @media (max-width: 420px) { .top .brand { gap: 7px; } .top .brand span { font-size: 15px; letter-spacing: .1em; } .top .brand img { width: 28px; height: 28px; } }
+
+/* Text-only centered header brand; the main tiger banner stays visible. */
+.top .brand img { display: none; }
