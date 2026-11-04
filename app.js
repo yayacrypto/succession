@@ -218,9 +218,6 @@ function cartLines() {
 function renderCart(root) {
   const lines = cartLines();
   const subtotal = lines.reduce((a, l) => a + l.lineTotal, 0);
-  const cartFees = Object.values(shipFees());
-  const oneFee = cartFees.length > 0 && cartFees.every(v => v === cartFees[0]);
-  const ship = cartFees.length ? (oneFee ? cartFees[0] : Math.min(...cartFees)) : 0;
   root.innerHTML = shell(`
   <section class="page">
     <h1>Cart</h1>
@@ -236,8 +233,7 @@ function renderCart(root) {
       </table>
       <div class="totals">
         <p>Subtotal <b>${egp(subtotal)}</b></p>
-        <p>Shipping (${oneFee ? shipGovs().join(', ') : 'set by governorate at checkout'}) <b>${oneFee ? egp(ship) : 'from ' + egp(ship)}</b></p>
-        <p class="grand">Total <b>${oneFee ? egp(subtotal + ship) : 'from ' + egp(subtotal + ship)}</b></p>
+        <p class="muted small">Shipping is calculated after you choose your governorate at checkout.</p>
       </div>
       <a class="btn" href="#/checkout">Checkout</a>`
     : '<p class="muted">Your cart is empty.</p>'}
@@ -254,7 +250,7 @@ function renderCheckout(root) {
   const open = state.settings && state.settings.acceptingOrders === true;
   const subtotal = lines.reduce((a, l) => a + l.lineTotal, 0);
   const fees = shipFees();
-  const preGov = shipGovs().length === 1 ? shipGovs()[0] : '';
+  const preGov = '';
   root.innerHTML = shell(`
   <section class="page">
     <h1>Checkout</h1>
@@ -391,16 +387,9 @@ function renderConfirm(root, id) {
 }
 
 function renderHelp(root) {
-  const helpFees = shipFees();
-  const helpGovs = Object.keys(helpFees);
-  const deliveryText = !helpGovs.length ? 'Delivery is temporarily unavailable.'
-    : helpGovs.length === 1 ? `We currently deliver in ${helpGovs[0]} only. Shipping is ${egp(helpFees[helpGovs[0]])} per order.`
-    : `We deliver to: ${helpGovs.map(g => `${g} - ${egp(helpFees[g])} shipping`).join(', ')}.`;
   root.innerHTML = shell(`
   <section class="page">
     <h1>Help</h1>
-    <h3>Delivery</h3>
-    <p>${deliveryText}</p>
     <h3>Payment</h3>
     <p>Cash on delivery, e-wallet, or bank transfer. For wallet or bank, Support sends you the payment details on WhatsApp after you order.</p>
     <h3>Sizing</h3>
